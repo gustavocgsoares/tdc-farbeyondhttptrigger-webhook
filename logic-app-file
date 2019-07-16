@@ -1,0 +1,2530 @@
+{
+    "$connections": {
+        "value": {
+            "visualstudioteamservices": {
+                "connectionId": "/subscriptions/[SUBSCRIPTION_ID]/resourceGroups/[RG_NAME]/providers/Microsoft.Web/connections/visualstudioteamservices",
+                "connectionName": "visualstudioteamservices",
+                "id": "/subscriptions/[SUBSCRIPTION_ID]/providers/Microsoft.Web/locations/southcentralus/managedApis/visualstudioteamservices"
+            }
+        }
+    },
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Condition": {
+                "actions": {},
+                "else": {
+                    "actions": {
+                        "Terminate": {
+                            "inputs": {
+                                "runStatus": "Cancelled"
+                            },
+                            "runAfter": {},
+                            "type": "Terminate"
+                        }
+                    }
+                },
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@body('Parse_JSON')?['action']",
+                                "opened"
+                            ]
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Handle_ping_message": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "If"
+            },
+            "Create_a_work_item": {
+                "inputs": {
+                    "body": {
+                        "description": "@body('Parse_JSON')?['issue']?['body']",
+                        "title": "@body('Parse_JSON')?['issue']?['title']"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['visualstudioteamservices']['connectionId']"
+                        }
+                    },
+                    "method": "patch",
+                    "path": "/@{encodeURIComponent('[PROJECT_NAME]')}/_apis/wit/workitems/$@{encodeURIComponent('Issue')}",
+                    "queries": {
+                        "account": "[ACCOUNT]"
+                    }
+                },
+                "runAfter": {
+                    "Condition": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Handle_ping_message": {
+                "actions": {
+                    "Cancel": {
+                        "inputs": {
+                            "runStatus": "Cancelled"
+                        },
+                        "runAfter": {},
+                        "type": "Terminate"
+                    }
+                },
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@triggerOutputs()['headers']?['X-Github-Event']",
+                                "ping"
+                            ]
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Parse_JSON": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "If"
+            },
+            "Parse_JSON": {
+                "inputs": {
+                    "content": "@triggerBody()",
+                    "schema": {
+                        "properties": {
+                            "content": {
+                                "properties": {
+                                    "action": {
+                                        "type": "string"
+                                    },
+                                    "issue": {
+                                        "properties": {
+                                            "assignee": {},
+                                            "assignees": {
+                                                "type": "array"
+                                            },
+                                            "author_association": {
+                                                "type": "string"
+                                            },
+                                            "body": {
+                                                "type": "string"
+                                            },
+                                            "closed_at": {},
+                                            "comments": {
+                                                "type": "integer"
+                                            },
+                                            "comments_url": {
+                                                "type": "string"
+                                            },
+                                            "created_at": {
+                                                "type": "string"
+                                            },
+                                            "events_url": {
+                                                "type": "string"
+                                            },
+                                            "html_url": {
+                                                "type": "string"
+                                            },
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "labels": {
+                                                "type": "array"
+                                            },
+                                            "labels_url": {
+                                                "type": "string"
+                                            },
+                                            "locked": {
+                                                "type": "boolean"
+                                            },
+                                            "milestone": {},
+                                            "node_id": {
+                                                "type": "string"
+                                            },
+                                            "number": {
+                                                "type": "integer"
+                                            },
+                                            "repository_url": {
+                                                "type": "string"
+                                            },
+                                            "state": {
+                                                "type": "string"
+                                            },
+                                            "title": {
+                                                "type": "string"
+                                            },
+                                            "updated_at": {
+                                                "type": "string"
+                                            },
+                                            "url": {
+                                                "type": "string"
+                                            },
+                                            "user": {
+                                                "properties": {
+                                                    "avatar_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "events_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "followers_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "following_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "gists_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "gravatar_id": {
+                                                        "type": "string"
+                                                    },
+                                                    "html_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "login": {
+                                                        "type": "string"
+                                                    },
+                                                    "node_id": {
+                                                        "type": "string"
+                                                    },
+                                                    "organizations_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "received_events_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "repos_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "site_admin": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "starred_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptions_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "url": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "repository": {
+                                        "properties": {
+                                            "archive_url": {
+                                                "type": "string"
+                                            },
+                                            "archived": {
+                                                "type": "boolean"
+                                            },
+                                            "assignees_url": {
+                                                "type": "string"
+                                            },
+                                            "blobs_url": {
+                                                "type": "string"
+                                            },
+                                            "branches_url": {
+                                                "type": "string"
+                                            },
+                                            "clone_url": {
+                                                "type": "string"
+                                            },
+                                            "collaborators_url": {
+                                                "type": "string"
+                                            },
+                                            "comments_url": {
+                                                "type": "string"
+                                            },
+                                            "commits_url": {
+                                                "type": "string"
+                                            },
+                                            "compare_url": {
+                                                "type": "string"
+                                            },
+                                            "contents_url": {
+                                                "type": "string"
+                                            },
+                                            "contributors_url": {
+                                                "type": "string"
+                                            },
+                                            "created_at": {
+                                                "type": "string"
+                                            },
+                                            "default_branch": {
+                                                "type": "string"
+                                            },
+                                            "deployments_url": {
+                                                "type": "string"
+                                            },
+                                            "description": {},
+                                            "disabled": {
+                                                "type": "boolean"
+                                            },
+                                            "downloads_url": {
+                                                "type": "string"
+                                            },
+                                            "events_url": {
+                                                "type": "string"
+                                            },
+                                            "fork": {
+                                                "type": "boolean"
+                                            },
+                                            "forks": {
+                                                "type": "integer"
+                                            },
+                                            "forks_count": {
+                                                "type": "integer"
+                                            },
+                                            "forks_url": {
+                                                "type": "string"
+                                            },
+                                            "full_name": {
+                                                "type": "string"
+                                            },
+                                            "git_commits_url": {
+                                                "type": "string"
+                                            },
+                                            "git_refs_url": {
+                                                "type": "string"
+                                            },
+                                            "git_tags_url": {
+                                                "type": "string"
+                                            },
+                                            "git_url": {
+                                                "type": "string"
+                                            },
+                                            "has_downloads": {
+                                                "type": "boolean"
+                                            },
+                                            "has_issues": {
+                                                "type": "boolean"
+                                            },
+                                            "has_pages": {
+                                                "type": "boolean"
+                                            },
+                                            "has_projects": {
+                                                "type": "boolean"
+                                            },
+                                            "has_wiki": {
+                                                "type": "boolean"
+                                            },
+                                            "homepage": {},
+                                            "hooks_url": {
+                                                "type": "string"
+                                            },
+                                            "html_url": {
+                                                "type": "string"
+                                            },
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "issue_comment_url": {
+                                                "type": "string"
+                                            },
+                                            "issue_events_url": {
+                                                "type": "string"
+                                            },
+                                            "issues_url": {
+                                                "type": "string"
+                                            },
+                                            "keys_url": {
+                                                "type": "string"
+                                            },
+                                            "labels_url": {
+                                                "type": "string"
+                                            },
+                                            "language": {},
+                                            "languages_url": {
+                                                "type": "string"
+                                            },
+                                            "license": {},
+                                            "merges_url": {
+                                                "type": "string"
+                                            },
+                                            "milestones_url": {
+                                                "type": "string"
+                                            },
+                                            "mirror_url": {},
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "node_id": {
+                                                "type": "string"
+                                            },
+                                            "notifications_url": {
+                                                "type": "string"
+                                            },
+                                            "open_issues": {
+                                                "type": "integer"
+                                            },
+                                            "open_issues_count": {
+                                                "type": "integer"
+                                            },
+                                            "owner": {
+                                                "properties": {
+                                                    "avatar_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "events_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "followers_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "following_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "gists_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "gravatar_id": {
+                                                        "type": "string"
+                                                    },
+                                                    "html_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "login": {
+                                                        "type": "string"
+                                                    },
+                                                    "node_id": {
+                                                        "type": "string"
+                                                    },
+                                                    "organizations_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "received_events_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "repos_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "site_admin": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "starred_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptions_url": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "url": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "private": {
+                                                "type": "boolean"
+                                            },
+                                            "pulls_url": {
+                                                "type": "string"
+                                            },
+                                            "pushed_at": {
+                                                "type": "string"
+                                            },
+                                            "releases_url": {
+                                                "type": "string"
+                                            },
+                                            "size": {
+                                                "type": "integer"
+                                            },
+                                            "ssh_url": {
+                                                "type": "string"
+                                            },
+                                            "stargazers_count": {
+                                                "type": "integer"
+                                            },
+                                            "stargazers_url": {
+                                                "type": "string"
+                                            },
+                                            "statuses_url": {
+                                                "type": "string"
+                                            },
+                                            "subscribers_url": {
+                                                "type": "string"
+                                            },
+                                            "subscription_url": {
+                                                "type": "string"
+                                            },
+                                            "svn_url": {
+                                                "type": "string"
+                                            },
+                                            "tags_url": {
+                                                "type": "string"
+                                            },
+                                            "teams_url": {
+                                                "type": "string"
+                                            },
+                                            "trees_url": {
+                                                "type": "string"
+                                            },
+                                            "updated_at": {
+                                                "type": "string"
+                                            },
+                                            "url": {
+                                                "type": "string"
+                                            },
+                                            "watchers": {
+                                                "type": "integer"
+                                            },
+                                            "watchers_count": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "sender": {
+                                        "properties": {
+                                            "avatar_url": {
+                                                "type": "string"
+                                            },
+                                            "events_url": {
+                                                "type": "string"
+                                            },
+                                            "followers_url": {
+                                                "type": "string"
+                                            },
+                                            "following_url": {
+                                                "type": "string"
+                                            },
+                                            "gists_url": {
+                                                "type": "string"
+                                            },
+                                            "gravatar_id": {
+                                                "type": "string"
+                                            },
+                                            "html_url": {
+                                                "type": "string"
+                                            },
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "login": {
+                                                "type": "string"
+                                            },
+                                            "node_id": {
+                                                "type": "string"
+                                            },
+                                            "organizations_url": {
+                                                "type": "string"
+                                            },
+                                            "received_events_url": {
+                                                "type": "string"
+                                            },
+                                            "repos_url": {
+                                                "type": "string"
+                                            },
+                                            "site_admin": {
+                                                "type": "boolean"
+                                            },
+                                            "starred_url": {
+                                                "type": "string"
+                                            },
+                                            "subscriptions_url": {
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "type": "string"
+                                            },
+                                            "url": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "schema": {
+                                "properties": {
+                                    "properties": {
+                                        "properties": {
+                                            "action": {
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "changes": {
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "issue": {
+                                                "properties": {
+                                                    "properties": {
+                                                        "properties": {
+                                                            "assignee": {
+                                                                "properties": {
+                                                                    "properties": {
+                                                                        "properties": {
+                                                                            "avatar_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "events_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "followers_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "following_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "gists_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "gravatar_id": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "html_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "id": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "login": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "node_id": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "organizations_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "received_events_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "repos_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "site_admin": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "starred_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "subscriptions_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "type": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "assignees": {
+                                                                "properties": {
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "properties": {
+                                                                                "properties": {
+                                                                                    "avatar_url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "events_url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "followers_url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "following_url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "gists_url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "gravatar_id": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "html_url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "id": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "login": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "node_id": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "organizations_url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "received_events_url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "repos_url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "site_admin": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "starred_url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "subscriptions_url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "type": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "required": {
+                                                                                "items": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "type": "array"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "author_association": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "body": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "closed_at": {
+                                                                "properties": {},
+                                                                "type": "object"
+                                                            },
+                                                            "comments": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "comments_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "created_at": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "events_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "html_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "id": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "labels": {
+                                                                "properties": {
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "properties": {
+                                                                                "properties": {
+                                                                                    "color": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "default": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "id": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "name": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "node_id": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "url": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "required": {
+                                                                                "items": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "type": "array"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "labels_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "locked": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "milestone": {
+                                                                "properties": {
+                                                                    "properties": {
+                                                                        "properties": {
+                                                                            "closed_at": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "closed_issues": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "created_at": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "creator": {
+                                                                                "properties": {
+                                                                                    "properties": {
+                                                                                        "properties": {
+                                                                                            "avatar_url": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "events_url": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "followers_url": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "following_url": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "gists_url": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "gravatar_id": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "html_url": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "id": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "login": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "node_id": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "organizations_url": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "received_events_url": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "repos_url": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "site_admin": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "starred_url": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "subscriptions_url": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "type": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "url": {
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "description": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "due_on": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "html_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "id": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "labels_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "node_id": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "number": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "open_issues": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "state": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "title": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "updated_at": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "node_id": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "number": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "repository_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "state": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "title": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "updated_at": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "user": {
+                                                                "properties": {
+                                                                    "properties": {
+                                                                        "properties": {
+                                                                            "avatar_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "events_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "followers_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "following_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "gists_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "gravatar_id": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "html_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "id": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "login": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "node_id": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "organizations_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "received_events_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "repos_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "site_admin": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "starred_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "subscriptions_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "type": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "repository": {
+                                                "properties": {
+                                                    "properties": {
+                                                        "properties": {
+                                                            "archive_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "archived": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "assignees_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "blobs_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "branches_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "clone_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "collaborators_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "comments_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "commits_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "compare_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "contents_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "contributors_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "created_at": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "default_branch": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "deployments_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "description": {
+                                                                "properties": {},
+                                                                "type": "object"
+                                                            },
+                                                            "disabled": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "downloads_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "events_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "fork": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "forks": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "forks_count": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "forks_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "full_name": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "git_commits_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "git_refs_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "git_tags_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "git_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "has_downloads": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "has_issues": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "has_pages": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "has_projects": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "has_wiki": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "homepage": {
+                                                                "properties": {},
+                                                                "type": "object"
+                                                            },
+                                                            "hooks_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "html_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "id": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "issue_comment_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "issue_events_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "issues_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "keys_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "labels_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "language": {
+                                                                "properties": {},
+                                                                "type": "object"
+                                                            },
+                                                            "languages_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "license": {
+                                                                "properties": {},
+                                                                "type": "object"
+                                                            },
+                                                            "merges_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "milestones_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "mirror_url": {
+                                                                "properties": {},
+                                                                "type": "object"
+                                                            },
+                                                            "name": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "node_id": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "notifications_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "open_issues": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "open_issues_count": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "owner": {
+                                                                "properties": {
+                                                                    "properties": {
+                                                                        "properties": {
+                                                                            "avatar_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "events_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "followers_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "following_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "gists_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "gravatar_id": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "html_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "id": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "login": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "node_id": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "organizations_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "received_events_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "repos_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "site_admin": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "starred_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "subscriptions_url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "type": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "url": {
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "private": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "pulls_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "pushed_at": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "releases_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "size": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "ssh_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "stargazers_count": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "stargazers_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "statuses_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "subscribers_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "subscription_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "svn_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "tags_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "teams_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "trees_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "updated_at": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "watchers": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "watchers_count": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "sender": {
+                                                "properties": {
+                                                    "properties": {
+                                                        "properties": {
+                                                            "avatar_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "events_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "followers_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "following_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "gists_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "gravatar_id": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "html_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "id": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "login": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "node_id": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "organizations_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "received_events_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "repos_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "site_admin": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "starred_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "subscriptions_url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "type": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "url": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {},
+                "type": "ParseJson"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "HTTP_Webhook": {
+                "inputs": {
+                    "subscribe": {
+                        "authentication": {
+                            "password": "@{concat('[PASSWORD_FIRST_PART]', '[PASSWORD_SECOND_PART]')}",
+                            "type": "Basic",
+                            "username": "[USERNAME]"
+                        },
+                        "body": {
+                            "active": true,
+                            "config": {
+                                "content_type": "json",
+                                "secret": "ThisIsMySecret",
+                                "url": "@{listCallbackUrl()}"
+                            },
+                            "events": [
+                                "issues"
+                            ],
+                            "name": "web"
+                        },
+                        "method": "POST",
+                        "uri": "https://api.github.com/repos/[USERNAME]/[GITHUB_REPOSITORY]/hooks"
+                    },
+                    "unsubscribe": {
+                        "authentication": {
+                            "password": "@{concat('[PASSWORD_FIRST_PART]', '[PASSWORD_SECOND_PART]')}",
+                            "type": "Basic",
+                            "username": "[USERNAME]"
+                        },
+                        "method": "DELETE",
+                        "uri": "@{concat('https://api.github.com/repos/[USERNAME]/[GITHUB_REPOSITORY]/hooks', triggerOutputs().subscribe.body.id)}"
+                    }
+                },
+                "type": "HttpWebhook"
+            }
+        }
+    }
+}
